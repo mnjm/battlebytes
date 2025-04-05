@@ -256,6 +256,7 @@ void control_brake_lamp(void)
 
 bool throttle_mode = false; // false = backward, true = forward
 bool old_start_mem = false; // Memory for the previous state of the start button
+
 void throttle_control(void)
 {
     // Check if the start button state has changed from not pressed to pressed
