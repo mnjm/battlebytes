@@ -5,5 +5,4 @@ toolchain
 *.log
 .vscode/.cortex-debug.registers.state.json
 .vscode/settings.json
-./asdk-gen2/platform/cyt2b75
 .git_bk
