@@ -244,149 +244,15 @@ void control_brake_lamp(void)
     if (st1_obj.brakes_input > 0)
     {
         // Any brake pressed - activate brake lamp
-        nosh_rx2_msg[1] = TAIL_LAMP_ON;
+        nosh_rx2_msg[1] = BRAKE_LAMP_ON;
     }
     else
     {
         // No brakes pressed - only tail lamp
-        nosh_rx2_msg[1] = BRAKE_LAMP_ON ;
+        nosh_rx2_msg[1] = TAIL_LAMP_ON ;
     }
     app_can_send(CAN_RX1_ID, nosh_rx2_msg, 8);
 }
-
-
-
-// void control_indicators(uint32_t current_time) {
-//     static uint8_t last_indicator_status = 0;
-
-//     // Check if indicator switch status changed or it's time to toggle
-//     if (st1_obj.indicator_switch != last_indicator_status ||
-//         (current_time - last_indicator_toggle_time) >= INDICATOR_BLINK_INTERVAL_MS) {
-
-//         // Handle center button press (turn off indicators)
-//         if (st1_obj.indicator_switch == 3) {
-//             uint8_t data[2] = {0x04, INDICATOR_LEFT_OFF};  // Turn off left
-//             app_can_send(CAN_RX1_ID, data, 2);
-
-//             data[1] = INDICATOR_RIGHT_OFF;  // Turn off right
-//             app_can_send(CAN_RX1_ID, data, 2);
-
-//             last_indicator_status = st1_obj.indicator_switch;
-//             indicator_state = false;  // Reset indicator state
-//             return;
-//         }
-
-//         // Handle left or right indicator
-//         if (st1_obj.indicator_switch == 1 || st1_obj.indicator_switch == 2) {
-//             // Toggle indicator state
-//             indicator_state = !indicator_state;
-
-//             uint8_t data[2] = {0x04, 0};  // Command type: Set Indicator
-
-//             if (st1_obj.indicator_switch == 1) {  // Left indicator
-//                 data[1] = indicator_state ? INDICATOR_LEFT_ON : INDICATOR_LEFT_OFF;
-//             } else {  // Right indicator
-//                 data[1] = indicator_state ? INDICATOR_RIGHT_ON : INDICATOR_RIGHT_OFF;
-//             }
-
-//             app_can_send(CAN_RX1_ID, data, 2);
-//             last_indicator_toggle_time = current_time;
-//         } else {
-//             // No indicators active (status 0) - ensure both are off
-//             uint8_t data[2] = {0x04, INDICATOR_LEFT_OFF};  // Turn off left
-//             app_can_send(CAN_RX1_ID, data, 2);
-
-//             data[1] = INDICATOR_RIGHT_OFF;  // Turn off right
-//             app_can_send(CAN_RX1_ID, data, 2);
-
-//             indicator_state = false;  // Reset indicator state
-//         }
-
-//         last_indicator_status = st1_obj.indicator_switch;
-//     }
-// }
-
-// void control_indicators(uint32_t current_time)
-// {
-//     static uint8_t last_indicator_status = 0;
-//     static uint32_t blink_start_time = 0;
-//     static bool is_blinking = false;
-//     // Check if indicator switch status changed
-//     if (st1_obj.indicator_switch != last_indicator_status)
-//     {
-//         // Reset blinking state when switch changes
-//         is_blinking = false;
-//         blink_start_time = current_time;
-//         // Handle center button press (turn off indicators)
-//         if (st1_obj.indicator_switch == 3)
-//         {
-//             uint8_t data[2] = {0x04, INDICATOR_LEFT_OFF}; // Turn off left
-//             app_can_send(CAN_RX1_ID, data, 2);
-//             data[1] = INDICATOR_RIGHT_OFF; // Turn off right
-//             app_can_send(CAN_RX1_ID, data, 2);
-//             last_indicator_status = st1_obj.indicator_switch;
-//             return;
-//         }
-//         last_indicator_status = st1_obj.indicator_switch;
-//     }
-//     // Handle left or right indicator blinking
-//     if (st1_obj.indicator_switch == 1 || st1_obj.indicator_switch == 2)
-//     {
-//         uint32_t elapsed_time = current_time - blink_start_time;
-//         // Calculate blink cycle
-//         uint32_t cycle_time = elapsed_time % INDICATOR_BLINK_INTERVAL_MS;
-//         // Determine if indicator should be on or off
-//         bool should_be_on = (cycle_time < INDICATOR_ON_TIME_MS);
-//         // Only send message if state changes
-//         if (should_be_on != is_blinking)
-//         {
-//             uint8_t data[2] = {0x04, 0}; // Command type: Set Indicator
-//             if (st1_obj.indicator_switch == 1)
-//             { // Left indicator
-//                 data[1] = should_be_on ? INDICATOR_LEFT_ON : INDICATOR_LEFT_OFF;
-//             }
-//             else
-//             { // Right indicator
-//                 data[1] = should_be_on ? INDICATOR_RIGHT_ON : INDICATOR_RIGHT_OFF;
-//             }
-//             app_can_send(CAN_RX1_ID, data, 2);
-//             is_blinking = should_be_on;
-//         }
-//     }
-//     else if (is_blinking)
-//     {
-//         // No indicators active (status 0) - ensure both are off
-//         uint8_t data[2] = {0x04, INDICATOR_LEFT_OFF}; // Turn off left
-//         app_can_send(CAN_RX1_ID, data, 2);
-//         data[1] = INDICATOR_RIGHT_OFF; // Turn off right
-//         app_can_send(CAN_RX1_ID, data, 2);
-//         is_blinking = false;
-//     }
-// }
-
-// bool throttle_mode = false;  // false = backward
-
-// void throttle_control(void) {
-//     // nosh_rx2_msg[0] = 0x02; // Command type: Set Throttle
-//     // nosh_rx2_msg[1] = st1_obj.throttle;
-//     app_can_send(CAN_RX1_ID, nosh_rx2_msg, 8);
-//     if (st1_obj.start_button) {
-//         throttle_mode = ! throttle_mode;
-//         DEBUG_PRINTF("Throttle Control Forward %d\n", throttle_mode);
-//     }
-
-//     if (st1_obj.throttle > 0) {
-//         if (throttle_mode) {
-//             nosh_rx2_msg[0] = 0x01;
-//             nosh_rx2_msg[2] = THROTTLE_FRWD_SPEED;
-//             app_can_send(CAN_RX2_ID, nosh_rx2_msg, 8);
-//         } else {
-//             nosh_rx2_msg[0] = 0x02;
-//             nosh_rx2_msg[2] = THROTTLE_BCWD_SPEED;
-//             app_can_send(CAN_RX2_ID, nosh_rx2_msg, 8);
-//         }
-//     }
-// }
 
 bool throttle_mode = false; // false = backward, true = forward
 bool old_start_mem = false; // Memory for the previous state of the start button
@@ -408,14 +274,14 @@ void throttle_control(void)
         {
             // Forward mode
             nosh_rx2_msg[0] = 0x01;                // Command for forward throttle
-            nosh_rx2_msg[2] = THROTTLE_FRWD_SPEED; // Set forward speed
+            nosh_rx2_msg[1] = THROTTLE_FRWD_SPEED; // Set forward speed
             DEBUG_PRINTF("Throttle Forward Speed: %d kmph\n", THROTTLE_FRWD_SPEED);
         }
         else
         {
             // Backward mode
             nosh_rx2_msg[0] = 0x02;                // Command for backward throttle
-            nosh_rx2_msg[2] = THROTTLE_BCWD_SPEED; // Set backward speed
+            nosh_rx2_msg[1] = THROTTLE_BCWD_SPEED; // Set backward speed
             DEBUG_PRINTF("Throttle Backward Speed: %d kmph\n", THROTTLE_BCWD_SPEED);
         }
         // Send the throttle command
@@ -425,7 +291,7 @@ void throttle_control(void)
     {
         // If throttle is zero, stop the vehicle
         nosh_rx2_msg[0] = 0x00; // Command to stop
-        nosh_rx2_msg[2] = 0;    // Speed is zero
+        nosh_rx2_msg[1] = 0;    // Speed is zero
         app_can_send(CAN_RX2_ID, nosh_rx2_msg, 8);
         DEBUG_PRINTF("Throttle Speed: 0 kmph (Stopped)\n");
     }
@@ -457,54 +323,6 @@ void start_button_control(void)
     nosh_rx2_msg[1] = st1_obj.start_button;
     app_can_send(CAN_RX1_ID, nosh_rx2_msg, 8);
 }
-
-// void control_indicators(uint32_t current_time) {
-//     static uint8_t last_indicator_status = 0;
-//     static uint32_t blink_start_time = 0;
-//     static bool is_blinking = false;
-//     // Check if indicator switch status changed
-//     if (st1_obj.indicator_switch != last_indicator_status) {
-//         // Reset blinking state when switch changes
-//         is_blinking = false;
-//         blink_start_time = current_time;
-//         // Handle center button press (turn off indicators)
-//         if (st1_obj.indicator_switch == 3) {
-//             uint8_t data[2] = {0x04, INDICATOR_LEFT_OFF};  // Turn off left
-//             app_can_send(CAN_RX1_ID, data, 2);
-//             data[1] = INDICATOR_RIGHT_OFF;  // Turn off right
-//             app_can_send(CAN_RX1_ID, data, 2);
-//             last_indicator_status = st1_obj.indicator_switch;
-//             return;
-//         }
-//         last_indicator_status = st1_obj.indicator_switch;
-//     }
-//     // Handle left or right indicator blinking
-//     if (st1_obj.indicator_switch == 1 || st1_obj.indicator_switch == 2) {
-//         uint32_t elapsed_time = current_time - blink_start_time;
-//         // Calculate blink cycle
-//         uint32_t cycle_time = elapsed_time % INDICATOR_BLINK_INTERVAL_MS;
-//         // Determine if indicator should be on or off
-//         bool should_be_on = (cycle_time < INDICATOR_ON_TIME_MS);
-//         // Only send message if state changes
-//         if (should_be_on != is_blinking) {
-//             uint8_t data[2] = {0x04, 0};  // Command type: Set Indicator
-//             if (st1_obj.indicator_switch == 1) {  // Left indicator
-//                 data[1] = should_be_on ? INDICATOR_LEFT_ON : INDICATOR_LEFT_OFF;
-//             } else {  // Right indicator
-//                 data[1] = should_be_on ? INDICATOR_RIGHT_ON : INDICATOR_RIGHT_OFF;
-//             }
-//             app_can_send(CAN_RX1_ID, data, 2);
-//             is_blinking = should_be_on;
-//         }
-//     } else if (is_blinking) {
-//         // No indicators active (status 0) - ensure both are off
-//         uint8_t data[2] = {0x04, INDICATOR_LEFT_OFF};  // Turn off left
-//         app_can_send(CAN_RX1_ID, data, 2);
-//         data[1] = INDICATOR_RIGHT_OFF;  // Turn off right
-//         app_can_send(CAN_RX1_ID, data, 2);
-//         is_blinking = false;
-//     }
-// }
 
 void control_indicators(uint32_t current_time_ms)
 {
